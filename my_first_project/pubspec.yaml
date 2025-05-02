@@ -1,0 +1,49 @@
+name: my_first_project
+description: Une application de gestion de budget personnel.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lottie: ^2.7.0
+  http: ^1.3.0
+  provider: ^6.0.5
+  shared_preferences: ^2.0.15
+  google_fonts: ^6.1.0
+  font_awesome_flutter: ^10.5.0
+  intl: ^0.18.0
+  fl_chart: ^0.64.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.3.2
+
+
+flutter:
+  assets:
+    - assets/images/logo.png
+    - assets/images/carte.png
+    - assets/images/stb_bank.png
+  uses-material-design: true
+  
+
+flutter_native_splash:
+  color: "#FFFFFF"  # Fond blanc
+  image: assets/images/stb_bank.png  # Logo de l'application
+  android_12:
+    image: assets/images/carte.png
+    icon_background_color: "#FFFFFF"
+fonts:
+  - family: Poppins
+    fonts:
+      - asset: assets/fonts/Poppins-Regular.ttf
+      - asset: assets/fonts/Poppins-Bold.ttf
+        weight: 700
+      
+
