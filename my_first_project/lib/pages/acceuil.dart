@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_first_project/models/user.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';  // Importer shared_preferences
 
@@ -21,13 +22,18 @@ class _AcceuilPageState extends State<AcceuilPage> {
   @override
   void initState() {
     super.initState();
-    userDataFuture = fetchUserData();
+    // fetchUserData();
   }
 
   // Fonction pour récupérer le token depuis SharedPreferences
   Future<String> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token') ?? '';  // Si le token n'existe pas, renvoie une chaîne vide
+    return prefs.getString('token') ?? '';
+  }
+
+  Future<String> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user') ?? '';
   }
 
   // Modifier la fonction pour utiliser le token récupéré
@@ -233,39 +239,9 @@ class _AcceuilPageState extends State<AcceuilPage> {
 // MODELES UTILISATEUR + TRANSACTION
 // ========================
 
-class UserData {
-  final String name;
-  final double solde;
-  final List<TransactionData> transactions;
 
-  UserData({required this.name, required this.solde, required this.transactions});
 
-  factory UserData.fromJson(Map<String, dynamic> json) {
-    return UserData(
-      name: json['name'],
-      solde: (json['solde'] ?? 0).toDouble(),
-      transactions: (json['transactions'] as List<dynamic>)
-          .map((e) => TransactionData.fromJson(e))
-          .toList(),
-    );
-  }
-}
 
-class TransactionData {
-  final String title;
-  final double amount;
-  final String date;
-
-  TransactionData({required this.title, required this.amount, required this.date});
-
-  factory TransactionData.fromJson(Map<String, dynamic> json) {
-    return TransactionData(
-      title: json['title'],
-      amount: (json['amount'] ?? 0).toDouble(),
-      date: json['date'],
-    );
-  }
-}
 
 // ========================
 // TRANSACTION TILE
