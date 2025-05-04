@@ -3,8 +3,11 @@ class TransactionData {
   final double amount;
   final String date;
 
-  TransactionData(
-      {required this.title, required this.amount, required this.date});
+  TransactionData({
+    required this.title,
+    required this.amount,
+    required this.date,
+  });
 
   factory TransactionData.fromJson(Map<String, dynamic> json) {
     return TransactionData(
@@ -12,5 +15,13 @@ class TransactionData {
       amount: (json['amount'] ?? 0).toDouble(),
       date: json['date'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'amount': amount,
+      'date': date,
+    };
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_first_project/models/user.dart';
 import 'dart:convert';
 import 'package:my_first_project/pages/acceuil.dart';
 import 'package:my_first_project/pages/admin.dart';
@@ -55,8 +56,10 @@ class _LoginPageState extends State<LoginPage> {
       // ➡️ Sauvegarder l'email avec SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("token", responseData['token']);
-      await prefs.setString('user', responseData['user']);
-
+      final userData = UserData.fromJson(responseData['user']);
+      final jsonString = jsonEncode(userData.toJson());
+      await prefs.setString('user', jsonString);
+      print(responseData['user']);
       if (userEmail == 'shayma@gmail.com') {
         Navigator.pushReplacement(
           context,
