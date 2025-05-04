@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_first_project/models/user.dart';
 import 'dart:convert';
-import 'package:my_first_project/pages/acceuil.dart'; 
-import 'package:my_first_project/pages/admin.dart'; 
+import 'package:my_first_project/pages/acceuil.dart';
+import 'package:my_first_project/pages/admin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -54,9 +55,11 @@ class _LoginPageState extends State<LoginPage> {
 
       // ➡️ Sauvegarder l'email avec SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-await prefs.setString("token", responseData['token']);
-      await prefs.setString('userEmail', userEmail);
-
+      await prefs.setString("token", responseData['token']);
+      final userData = UserData.fromJson(responseData['user']);
+      final jsonString = jsonEncode(userData.toJson());
+      await prefs.setString('user', jsonString);
+      print(responseData['user']);
       if (userEmail == 'shayma@gmail.com') {
         Navigator.pushReplacement(
           context,
@@ -91,7 +94,8 @@ await prefs.setString("token", responseData['token']);
               GradientText(
                 "STB iSAVE",
                 style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-                gradient: LinearGradient(colors: [Color(0xFF005A9C), Color(0xFF42A5F5)]),
+                gradient: LinearGradient(
+                    colors: [Color(0xFF005A9C), Color(0xFF42A5F5)]),
               ),
               SizedBox(height: 10),
               Text(
@@ -102,7 +106,8 @@ await prefs.setString("token", responseData['token']);
               SizedBox(height: 40),
               _buildTextField(emailController, "Adresse e-mail", Icons.email),
               SizedBox(height: 16),
-              _buildTextField(passwordController, "Mot de passe", Icons.lock, isPassword: true),
+              _buildTextField(passwordController, "Mot de passe", Icons.lock,
+                  isPassword: true),
               SizedBox(height: 30),
               Container(
                 width: double.infinity,
@@ -150,7 +155,8 @@ await prefs.setString("token", responseData['token']);
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon,
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
       {bool isPassword = false}) {
     return TextField(
       controller: controller,
@@ -178,12 +184,10 @@ class GradientText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShaderMask(
-      shaderCallback: (bounds) =>
-          gradient.createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+      shaderCallback: (bounds) => gradient
+          .createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
       blendMode: BlendMode.srcIn,
       child: Text(text, style: style),
     );
   }
 }
-
-
