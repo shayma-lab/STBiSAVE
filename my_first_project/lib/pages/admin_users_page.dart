@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class AdminUsersPage extends StatefulWidget {
@@ -13,10 +14,11 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
   List<dynamic> _users = [];
   bool _isLoading = true;
   String? _error;
+  final apiUrl = dotenv.env['API_URL'];
 
   Future<void> fetchUsers() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:5000/api/admin/users'));
+      final response = await http.get(Uri.parse('$apiUrl/admin/users'));
       if (response.statusCode == 200) {
         setState(() {
           _users = json.decode(response.body);

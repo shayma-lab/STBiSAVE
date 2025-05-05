@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:my_first_project/models/user.dart';
-import 'dart:convert';
-import 'package:my_first_project/pages/acceuil.dart';
-import 'package:my_first_project/pages/admin.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_first_project/services/auth.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,71 +10,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
-
-  Future<void> loginUser() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Veuillez remplir tous les champs."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    final url = Uri.parse("http://localhost:5000/api/auth/login");
-
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "email": emailController.text.trim(),
-        "password": passwordController.text,
-      }),
-    );
-
-    final responseData = json.decode(response.body);
-    setState(() => isLoading = false);
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("✅ Connexion réussie !"),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      final userEmail = emailController.text.trim();
-
-      // ➡️ Sauvegarder l'email avec SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("token", responseData['token']);
-      final userData = UserData.fromJson(responseData['user']);
-      final jsonString = jsonEncode(userData.toJson());
-      await prefs.setString('user', jsonString);
-      print(responseData['user']);
-      if (userEmail == 'shayma@gmail.com') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminPage()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AcceuilPage()),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(responseData['error'] ?? "Erreur de connexion."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +101,31 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> loginUser() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Veuillez remplir tous les champs."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    setState(() => isLoading = true);
+    Auth auth = Auth();
+    try {
+      await auth.loginUser(
+          emailController.text.trim(), passwordController.text, context);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur de connexion : $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 }
 

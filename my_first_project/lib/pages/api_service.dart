@@ -1,14 +1,16 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://localhost:5000/api/auth"; // À modifier en prod
+  final apiUrl = dotenv.env['API_URL'];
 
   // Méthode pour s'inscrire
-  static Future<Map<String, dynamic>?> registerUser(String name, String email, String password) async {
+  Future<Map<String, dynamic>?> registerUser(
+      String name, String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/register"),
+        Uri.parse("$apiUrl/auth/register"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"name": name, "email": email, "password": password}),
       );
@@ -16,7 +18,9 @@ class ApiService {
       if (response.statusCode == 201) {
         return jsonDecode(response.body); // Succès
       } else {
-        return {"error": jsonDecode(response.body)["msg"]}; // Erreur côté serveur
+        return {
+          "error": jsonDecode(response.body)["msg"]
+        }; // Erreur côté serveur
       }
     } catch (e) {
       return {"error": "Erreur de connexion au serveur"};
@@ -24,10 +28,10 @@ class ApiService {
   }
 
   // Méthode pour se connecter
-  static Future<Map<String, dynamic>?> loginUser(String email, String password) async {
+  Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/login"),
+        Uri.parse("$apiUrl/auth/login"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email, "password": password}),
       );

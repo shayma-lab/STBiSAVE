@@ -17,6 +17,8 @@ dependencies:
   font_awesome_flutter: ^10.5.0
   intl: ^0.18.0
   fl_chart: ^0.64.0
+  flutter_dotenv: ^5.2.1
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -27,9 +29,8 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/images/logo.png
-    - assets/images/carte.png
-    - assets/images/stb_bank.png
+    - assets/images/
+    - .env
   uses-material-design: true
   
 

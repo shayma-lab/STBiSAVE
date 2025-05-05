@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:my_first_project/models/user.dart';
+import 'package:my_first_project/pages/modify_profile_page.dart';
+import 'package:my_first_project/services/auth.dart';
+import 'package:my_first_project/widgets/yes_or_no_popup.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,9 +14,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool isDarkMode = false;
+  UserData user = UserData("", "", "", "", "", "", DateTime.now(), 0, []);
 
-  final String userName = "Chaima Ben Amor"; // À rendre dynamique plus tard
-  final String userEmail = "chaima@email.com";
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    Auth auth = Auth();
+    final userData = await auth.userData();
+    setState(() {
+      user = userData;
+    });
+  }
 
   void toggleDarkMode(bool value) {
     setState(() {
@@ -77,12 +93,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const CircleAvatar(
-                    backgroundImage: AssetImage('assets/avatar.png'),
+                    backgroundImage: AssetImage('assets/images/avatar.png'),
                     radius: 50,
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    userName,
+                    "${user.civilite} ${user.name} ${user.prenom}",
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -91,7 +107,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    userEmail,
+                    user.dateNaissance.toIso8601String().split("T")[0],
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.6),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.phone,
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.6),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.email,
                     style: TextStyle(
                       color: textColor.withOpacity(0.6),
                       fontSize: 14,
@@ -100,7 +132,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Naviguer vers la page modification
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ModifyProfilePage(user),
+                          ));
                     },
                     icon: const Icon(Icons.edit),
                     label: const Text("Modifier mon compte"),
@@ -133,7 +169,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   const Positioned(
                     right: -2,
                     top: -2,
-                    child: Icon(Icons.workspace_premium, size: 16, color: Colors.amber),
+                    child: Icon(Icons.workspace_premium,
+                        size: 16, color: Colors.amber),
                   ),
                 ],
               ),
@@ -155,11 +192,11 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 10),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Se déconnecter', style: TextStyle(color: Colors.red)),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
-              onTap: () {
-                // Action de déconnexion
-              },
+              title: const Text('Se déconnecter',
+                  style: TextStyle(color: Colors.red)),
+              trailing: const Icon(Icons.arrow_forward_ios,
+                  size: 16, color: Colors.red),
+              onTap: logout,
             ),
           ],
         ),
@@ -171,11 +208,24 @@ class _ProfilePageState extends State<ProfilePage> {
         onTap: navigateTo,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-          BottomNavigationBarItem(icon: Icon(FontAwesomeIcons.chartPie), label: 'Statistiques'),
+          BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.chartPie), label: 'Statistiques'),
           BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Objectifs'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Compte'),
         ],
       ),
+    );
+  }
+
+  logout() async {
+    showDialog(
+      context: context,
+      builder: (context) => YesOrNoPopup(
+          "Déconnexion", "Êtes-vous sûr de vouloir vous déconnecter ?",
+          () async {
+        Auth auth = Auth();
+        await auth.logout(context);
+      }),
     );
   }
 }

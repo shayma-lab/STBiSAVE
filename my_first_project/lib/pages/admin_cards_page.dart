@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AdminCardsPage extends StatefulWidget {
   const AdminCardsPage({super.key});
@@ -20,7 +21,7 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
   final TextEditingController typeCarteController = TextEditingController();
   final TextEditingController expirationController = TextEditingController();
 
-  final String apiUrl = 'http://localhost:5000/api'; // Change this with your local IP if needed
+  final apiUrl = dotenv.env['API_URL'];
 
   @override
   void initState() {
