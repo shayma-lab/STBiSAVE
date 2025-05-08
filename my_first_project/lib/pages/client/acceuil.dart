@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_first_project/models/transactionWithUser.dart';
 import 'package:my_first_project/models/user.dart';
 import 'package:my_first_project/services/auth.dart';
-import 'rapport.dart';
-import 'objectif.dart';
-import 'profile.dart';
+import 'package:my_first_project/widgets/circular_widget.dart';
+import 'package:my_first_project/widgets/error_message_widget.dart';
 
 class AcceuilPage extends StatefulWidget {
+  static const routeName = "/AcceuilPage";
   const AcceuilPage({Key? key});
 
   @override
@@ -50,16 +49,11 @@ class _AcceuilPageState extends State<AcceuilPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6FF),
+      // backgroundColor: const Color(0xFFF3F6FF),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? CircularWidget(Colors.white)
           : errorMessage != ""
-              ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: TextStyle(color: Colors.red, fontSize: 14),
-                  ),
-                )
+              ? ErrorMessageWidget(errorMessage)
               : Column(
                   children: [
                     Container(
@@ -173,7 +167,8 @@ class _AcceuilPageState extends State<AcceuilPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: transaction.transactions.length,
                         itemBuilder: (context, index) {
-                          final transactionData = transaction.transactions[index];
+                          final transactionData =
+                              transaction.transactions[index];
                           return TransactionTile(
                             title: transactionData.title,
                             amount:
@@ -185,41 +180,6 @@ class _AcceuilPageState extends State<AcceuilPage> {
                     ),
                   ],
                 ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const RapportsPage()));
-          } else if (index == 2) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const ObjectifPage()));
-          } else if (index == 3) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const ProfilePage()));
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.chartPie),
-            label: 'Statistiques',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.savings),
-            label: 'Objectifs',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Compte',
-          ),
-        ],
-      ),
     );
   }
 }

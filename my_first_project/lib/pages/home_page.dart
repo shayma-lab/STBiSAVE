@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_first_project/pages/auth/connexion.dart';
+import 'package:my_first_project/pages/auth/inscription.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -67,11 +69,11 @@ class _HomePageState extends State<HomePage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildHeaderButton('Se connecter', () {
-                          Navigator.pushNamed(context, '/login');
+                          Navigator.pushNamed(context, LoginPage.routeName);
                         }),
                         const SizedBox(width: 15),
                         _buildHeaderButton("S'inscrire", () {
-                          Navigator.pushNamed(context, '/register');
+                          Navigator.pushNamed(context, InscriptionPage.routeName);
                         }),
                       ],
                     ),

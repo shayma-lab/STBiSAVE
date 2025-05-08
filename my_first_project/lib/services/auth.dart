@@ -7,8 +7,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:my_first_project/models/http_exceptions.dart';
 import 'package:my_first_project/models/transactionWithUser.dart';
 import 'package:my_first_project/models/user.dart';
-import 'package:my_first_project/pages/acceuil.dart';
-import 'package:my_first_project/pages/admin.dart';
+import 'package:my_first_project/pages/admin/admin.dart';
+import 'package:my_first_project/pages/auth/connexion.dart';
+import 'package:my_first_project/pages/client/tab_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth {
@@ -68,15 +69,9 @@ class Auth {
         final jsonString = jsonEncode(userData.toJson());
         await prefs.setString('user', jsonString);
         if (email == 'shayma@gmail.com') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminPage()),
-          );
+          Navigator.pushReplacementNamed(context, AdminPage.routeName);
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AcceuilPage()),
-          );
+          Navigator.pushReplacementNamed(context, TabScreen.routeName);
         }
       } else {
         throw CustomHttpException("Une erreur est survenue");
@@ -109,7 +104,7 @@ class Auth {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove("token");
       Navigator.pushNamedAndRemoveUntil(
-          context, '/login', (Route<dynamic> route) => false);
+          context, LoginPage.routeName, (Route<dynamic> route) => false);
     });
   }
 

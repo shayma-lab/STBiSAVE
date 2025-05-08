@@ -5,6 +5,7 @@ import 'admin_reports_page.dart';
 import 'admin_profile_page.dart';
 
 class AdminPage extends StatefulWidget {
+  static const routeName = "/AdminPage";
   const AdminPage({super.key});
 
   @override

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_first_project/models/user.dart';
+import 'package:my_first_project/pages/admin/admin.dart';
+import 'package:my_first_project/pages/auth/connexion.dart';
+import 'package:my_first_project/pages/client/tab_screen.dart';
 import 'package:my_first_project/services/auth.dart';
 
 class SplashScreen extends StatefulWidget {
+  static const routeName = "/SplashScreen";
   const SplashScreen({super.key});
 
   @override
@@ -16,6 +21,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   late final Animation<double> _animation =
       CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn);
+
+  Auth auth = Auth();
+  UserData user = UserData("", "", "", "", "", "", DateTime.now(), 0, []);
 
   @override
   void dispose() {
@@ -36,13 +44,17 @@ class _SplashScreenState extends State<SplashScreen>
 
   void loadAndNavigate() async {
     try {
-      Auth auth = Auth();
       bool isLoggedIn = await auth.autoLogin(context);
       if (!mounted) return;
       if (isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/home');
+        await fetchData();
+        if (user.email == 'shayma@gmail.com') {
+          Navigator.pushReplacementNamed(context, AdminPage.routeName);
+        } else {
+          Navigator.pushReplacementNamed(context, TabScreen.routeName);
+        }
       } else {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, LoginPage.routeName);
       }
     } catch (error) {
       if (!mounted) return;
@@ -50,6 +62,13 @@ class _SplashScreenState extends State<SplashScreen>
         SnackBar(content: Text(error.toString())),
       );
     }
+  }
+
+  Future<void> fetchData() async {
+    final userData = await auth.userData();
+    setState(() {
+      user = userData;
+    });
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_first_project/services/auth.dart';
 
 class InscriptionPage extends StatefulWidget {
+  static const routeName = "/InscriptionPage";
   const InscriptionPage({super.key});
 
   @override

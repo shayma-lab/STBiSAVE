@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:my_first_project/services/auth.dart';
 
 class LoginPage extends StatefulWidget {
+  static const routeName = "/LoginPage";
+
+  const LoginPage({super.key});
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -119,7 +122,6 @@ class _LoginPageState extends State<LoginPage> {
       await auth.loginUser(
           emailController.text.trim(), passwordController.text, context);
     } catch (e) {
-      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur de connexion : $e")),
       );
