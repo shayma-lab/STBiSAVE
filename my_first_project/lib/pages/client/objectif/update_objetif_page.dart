@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:my_first_project/models/objectif.dart';
 import 'package:my_first_project/services/objectif.dart';
 import 'package:my_first_project/widgets/back_appbar_widget.dart';
 import 'package:my_first_project/widgets/circular_widget.dart';
 
-class AddObjectifPage extends StatefulWidget {
-  static const routeName = "/AddObjectifPage";
-  const AddObjectifPage({super.key});
+class UpdateObjectifPage extends StatefulWidget {
+  static const routeName = "/UpdateObjectifPage";
+  final Objectif objectif;
+  const UpdateObjectifPage(this.objectif, {super.key});
 
   @override
-  State<AddObjectifPage> createState() => _AddObjectifPageState();
+  State<UpdateObjectifPage> createState() => _UpdateObjectifPageState();
 }
 
-class _AddObjectifPageState extends State<AddObjectifPage> {
+class _UpdateObjectifPageState extends State<UpdateObjectifPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
@@ -20,16 +23,24 @@ class _AddObjectifPageState extends State<AddObjectifPage> {
   bool isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    nameController.text = widget.objectif.name;
+    amountController.text = widget.objectif.amount.toStringAsFixed(2);
+    dateController.text = widget.objectif.date.toIso8601String().split("T")[0];
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: backAppBar(context, "Ajouter un Objectif"),
+      appBar: backAppBar(context, "Modifier un Objectif"),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Column(
             children: [
               const Text(
-                'Créer un nouvel objectif',
+                'Modifier cette objectif',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
@@ -45,6 +56,10 @@ class _AddObjectifPageState extends State<AddObjectifPage> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
                       controller: amountController,
                       decoration: inputDecoration(
                           "Montant", FontAwesomeIcons.moneyBill1Wave),
@@ -78,7 +93,7 @@ class _AddObjectifPageState extends State<AddObjectifPage> {
                               ? CircularWidget(Colors.white)
                               : Center(
                                   child: Text(
-                                    "Ajouter",
+                                    "Modifier",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -114,9 +129,9 @@ class _AddObjectifPageState extends State<AddObjectifPage> {
   Future<void> selectDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(2000),
-      firstDate: DateTime(1950),
-      lastDate: DateTime.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
       setState(() {
@@ -138,7 +153,8 @@ class _AddObjectifPageState extends State<AddObjectifPage> {
     setState(() => isLoading = true);
     ObjectifService objectifService = ObjectifService();
     try {
-      await objectifService.createObjectif(
+      await objectifService.updateObjectif(
+          widget.objectif.id,
           nameController.text.trim(),
           num.parse(amountController.text),
           DateTime.parse(dateController.text));

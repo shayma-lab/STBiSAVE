@@ -20,6 +20,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   jwt_decoder: ^2.0.1
   google_nav_bar: ^5.0.7
+  flutter_slidable: ^4.0.0
 
 dev_dependencies:
   flutter_test:

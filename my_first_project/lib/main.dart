@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:my_first_project/pages/admin/admin.dart';
-import 'package:my_first_project/pages/client/objectifs_page.dart';
+import 'package:my_first_project/pages/client/objectif/objectifs_page.dart';
 import 'package:my_first_project/pages/client/tab_screen.dart';
 import 'package:my_first_project/pages/home_page.dart';
 import 'package:my_first_project/pages/splash_screen.dart';
@@ -11,7 +11,7 @@ import 'pages/auth/connexion.dart';
 import 'pages/auth/inscription.dart';
 import 'pages/client/rapport.dart';
 import 'pages/client/acceuil.dart';
-import 'pages/client/add_objectif_page.dart';
+import 'pages/client/objectif/add_objectif_page.dart';
 import 'pages/client/profile.dart';
 
 void main() async {

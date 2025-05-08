@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_first_project/models/objectif.dart';
-import 'package:my_first_project/pages/client/add_objectif_page.dart';
+import 'package:my_first_project/pages/client/objectif/add_objectif_page.dart';
+import 'package:my_first_project/pages/client/objectif/update_objetif_page.dart';
 import 'package:my_first_project/services/objectif.dart';
 import 'package:my_first_project/widgets/appbar_widget.dart';
 import 'package:my_first_project/widgets/circular_widget.dart';
 import 'package:my_first_project/widgets/error_message_widget.dart';
 import 'package:my_first_project/widgets/info_message_widget.dart';
+import 'package:my_first_project/widgets/objectif_widget.dart';
 
 class ObjectifsPage extends StatefulWidget {
   static const routeName = "/ObjectifsPage";
@@ -64,25 +66,22 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
                               itemCount: objectifs.length,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) => Card(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                child: ListTile(
-                                  leading: Text(
-                                    '${index + 1}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                              itemBuilder: (context, index) => ObjectifWidget(
+                                objectifs[index],
+                                index.toDouble(),
+                                onDelete: () =>
+                                    deleteObjectif(objectifs[index].id),
+                                onEdit: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          UpdateObjectifPage(objectifs[index]),
                                     ),
-                                  ),
-                                  title: Text(objectifs[index].name),
-                                  trailing: Text(
-                                    '${objectifs[index].amount.toStringAsFixed(2)} DT',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ),
-                                ),
+                                  ).then((value) {
+                                    fetchData();
+                                  });
+                                },
                               ),
                             ),
                           ],
@@ -99,5 +98,25 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
+  }
+
+  editObjectif() {}
+
+  deleteObjectif(String id) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await objectifService.deleteObjectif(id);
+      fetchData();
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

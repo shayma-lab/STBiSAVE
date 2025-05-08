@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:my_first_project/pages/client/acceuil.dart';
-import 'package:my_first_project/pages/client/objectifs_page.dart';
+import 'package:my_first_project/pages/client/objectif/objectifs_page.dart';
 import 'package:my_first_project/pages/client/profile.dart';
 import 'package:my_first_project/pages/client/rapport.dart';
 

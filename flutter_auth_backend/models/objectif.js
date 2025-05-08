@@ -6,7 +6,7 @@ const objectifSchema = new mongoose.Schema(
     amount: { type: Number, required: true, default: 0 }, // Total goal
     progression: { type: Number, required: true, default: 0 }, // Current saved
     date: { type: Date, required: true }, // End date
-    startDate: { type: Date }, // Start date
+    createdAt: { type: Date },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -4,26 +4,21 @@ const Objectif = require("../models/objectif");
 
 const router = express.Router();
 
-// Create Objectif
 router.post("/create", authMiddleware, async (req, res) => {
   try {
     const { name, amount, date } = req.body;
     const userId = req.user.user._id;
 
     if (!name || !amount == null || !date) {
-      // Handle `amount=0`
       return res.status(400).json({ msg: "Tous les champs sont requis." });
     }
-
-    // Explicitly create a Date object
     const parsedDate = new Date(date);
-
     const newObjectif = new Objectif({
-      // ← Capitalized model name
       name,
       amount: Number(amount),
       date: parsedDate,
       userId,
+      createdAt: new Date(),
     });
 
     await newObjectif.save();
@@ -71,43 +66,34 @@ router.put("/update/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/progress/:id", authMiddleware, async (req, res) => {
+router.put("/progress/:id", authMiddleware, async (req, res) => {
   try {
-    const objectifId = req.params.id;
+    const { id } = req.params;
     const userId = req.user.user._id;
+    const { amount } = req.body;
 
-    const objectif = await Objectif.findOne({ _id: objectifId, userId });
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ msg: "Montant invalide." });
+    }
+
+    const objectif = await Objectif.findOne({ _id: id, userId });
     if (!objectif) {
       return res.status(404).json({ msg: "Objectif non trouvé." });
     }
 
-    const today = new Date();
-    const totalDays = Math.ceil(
-      (new Date(objectif.date) - new Date(objectif.startDate)) /
-        (1000 * 60 * 60 * 24)
-    );
-    const daysPassed = Math.ceil(
-      (today - new Date(objectif.startDate)) / (1000 * 60 * 60 * 24)
-    );
-    const remaining = objectif.amount - objectif.progression;
-
-    const expectedProgression = (objectif.amount / totalDays) * daysPassed;
-    const recommendedAmount = Math.ceil(
-      expectedProgression - objectif.progression
-    );
-
-    if (recommendedAmount <= 0) {
+    const remainingAmount = objectif.amount - objectif.progression;
+    if (amount > remainingAmount) {
       return res
-        .status(200)
-        .json({ msg: "Aucune progression nécessaire aujourd'hui." });
+        .status(400)
+        .json({ msg: "Montant dépasse le montant restant." });
     }
 
-    objectif.progression += recommendedAmount;
+    objectif.progression += amount;
     await objectif.save();
 
     res.status(200).json({
+      msg: `${amount} DT ajoutés avec succès.`,
       progression: objectif.progression,
-      recommendedAmount,
       remaining: objectif.amount - objectif.progression,
     });
   } catch (err) {
@@ -115,5 +101,57 @@ router.post("/progress/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Erreur serveur interne." });
   }
 });
+
+router.delete("/delete/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.user._id;
+
+    const objectif = await Objectif.deleteOne({ _id: id, userId });
+    if (objectif.deletedCount === 0) {
+      return res.status(404).json({ msg: "Objectif non trouvé." });
+    }
+    res.status(200).json({ message: "Objectif supprimé." });
+  } catch (err) {
+    console.error("Erreur serveur :", err);
+    res.status(500).json({ error: "Erreur serveur interne." });
+  }
+});
+
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.user._id;
+
+    const objectif = await Objectif.findOne({ _id: id, userId });
+
+    if (!objectif) {
+      return res.status(404).json({ msg: "Objectif non trouvé." });
+    }
+
+    const today = new Date();
+    const endDate = new Date(objectif.date);
+
+    const remainingAmount = objectif.amount - objectif.progression;
+
+    const remainingDays = Math.max(
+      1,
+      Math.ceil((endDate - today) / (1000 * 60 * 60 * 24))
+    );
+
+    const dailyAmount = Math.ceil(remainingAmount / remainingDays);
+
+    res.status(200).json({
+      objectif,
+      remainingAmount,
+      dailyAmount,
+      remainingDays,
+    });
+  } catch (err) {
+    console.error("Erreur serveur :", err);
+    res.status(500).json({ error: "Erreur serveur interne." });
+  }
+});
+
 
 module.exports = router;

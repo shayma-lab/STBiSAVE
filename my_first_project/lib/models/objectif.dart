@@ -5,31 +5,25 @@ class Objectif {
   final DateTime date;
   final num progression;
   final DateTime createdAt;
-  final DateTime updatedAt;
 
-  Objectif({
-    required this.id,
-    required this.name,
-    required this.amount,
-    required this.date,
-    required this.progression,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  Objectif(
+    this.id,
+    this.name,
+    this.amount,
+    this.date,
+    this.progression,
+    this.createdAt,
+  );
 
   factory Objectif.fromJson(Map<String, dynamic> json) {
     return Objectif(
-      id: json['_id'] ?? '',
-      name: json['name'] ?? '',
-      amount: (json['amount'] ?? 0).toDouble(),
-      date:
-          json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
-      progression: (json['progression'] ?? 0).toDouble(),
-      createdAt: json['createdAt'] != null
+      json['_id'] ?? '',
+      json['name'] ?? '',
+      (json['amount'] ?? 0).toDouble(),
+      json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      (json['progression'] ?? 0).toDouble(),
+      json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
           : DateTime.now(),
     );
   }
@@ -41,5 +35,28 @@ class Objectif {
       'date': date.toIso8601String(),
       'progression': progression,
     };
+  }
+}
+
+class ObjectifDetailResponse {
+  final Objectif objectif;
+  final num remainingAmount;
+  final num dailyAmount;
+  final int remainingDays;
+
+  ObjectifDetailResponse(
+    this.objectif,
+    this.remainingAmount,
+    this.dailyAmount,
+    this.remainingDays,
+  );
+
+  factory ObjectifDetailResponse.fromJson(Map<String, dynamic> json) {
+    return ObjectifDetailResponse(
+      Objectif.fromJson(json['objectif']),
+      (json['remainingAmount'] ?? 0).toDouble(),
+      (json['dailyAmount'] ?? 0).toDouble(),
+      json['remainingDays'] ?? 0,
+    );
   }
 }
