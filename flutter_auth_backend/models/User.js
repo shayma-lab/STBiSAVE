@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
     gouvernorat: { type: String, required: true },
     dateNaissance: { type: Date, required: true },
     soldeBancaire: { type: Number, default: 0 },
+    role: { type: String, enum: ["admin", "user"], default: "user" },
   },
   { timestamps: true }
 );

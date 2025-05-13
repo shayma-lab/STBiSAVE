@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
+const User = require("../models/user");
 const Card = require("../models/card");
 const Transaction = require("../models/transaction");
 
@@ -100,10 +100,27 @@ router.put("/update-card/:id", async (req, res) => {
 // ✅ POST ajouter une transaction
 router.post("/add-transaction", async (req, res) => {
   try {
-    const { userId, cardId, transactionNumber, amount, beneficiaryAccount, date } = req.body;
+    const {
+      userId,
+      cardId,
+      transactionNumber,
+      amount,
+      beneficiaryAccount,
+      date,
+      category,
+    } = req.body;
 
-    if (!userId || !cardId || !transactionNumber || !amount || !beneficiaryAccount) {
-      return res.status(400).json({ error: "Tous les champs sont obligatoires." });
+    if (
+      !userId ||
+      !cardId ||
+      !transactionNumber ||
+      !amount ||
+      !beneficiaryAccount ||
+      !category
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Tous les champs sont obligatoires." });
     }
 
     const transaction = new Transaction({
@@ -112,7 +129,8 @@ router.post("/add-transaction", async (req, res) => {
       transactionNumber,
       amount,
       beneficiaryAccount,
-      date: date || new Date()
+      category,
+      date: date || new Date(),
     });
 
     await transaction.save();

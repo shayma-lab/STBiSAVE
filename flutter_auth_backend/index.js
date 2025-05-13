@@ -6,8 +6,9 @@ dotenv.config();
 const app = express();
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
-const acceuilRoutes = require("./routes/acceuil");
+const transactionRoutes = require("./routes/transaction");
 const objectifRoutes = require("./routes/objectif");
+const categoryRoutes = require("./routes/category");
 
 // Middleware
 app.use(
@@ -39,8 +40,9 @@ require("./models/card"); // <-- AJOUT IMPORTANT 🆕
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/accueil", acceuilRoutes);
+app.use("/api/transaction", transactionRoutes);
 app.use("/api/objectif", objectifRoutes);
+app.use("/api/category", categoryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () =>

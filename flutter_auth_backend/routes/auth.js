@@ -1,7 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const Card = require("../models/card");
+const User = require("../models/user");
+
 const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
@@ -84,6 +86,10 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Mot de passe incorrect." });
 
     const { password: _pwd, ...userData } = user.toObject();
+    const card = await Card.findOne({ userId: user._id });
+    if (card) {
+      userData.soldeBancaire = card.soldeBancaire;
+    }
     const token = jwt.sign({ user: userData }, JWT_SECRET, {
       expiresIn: "7d",
     });
