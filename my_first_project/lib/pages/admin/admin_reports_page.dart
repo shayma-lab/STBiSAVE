@@ -123,7 +123,8 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
               final transaction = transactions[index];
               return Card(
                 child: ListTile(
-                  title: Text(transaction.beneficiaryAccount),
+                  title: Text(
+                      "${transaction.user.name} ${transaction.user.prenom}"),
                   subtitle: Text(DateFormat('MMM dd, yyyy - hh:mm a')
                       .format(transaction.date)),
                   trailing: Text('\$${transaction.amount.toStringAsFixed(2)}'),

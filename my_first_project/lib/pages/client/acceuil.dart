@@ -30,7 +30,6 @@ class _AcceuilPageState extends State<AcceuilPage> {
   void initState() {
     super.initState();
     fetchData();
-    fetchUserData();
   }
 
   Future<void> fetchUserData() async {
@@ -47,6 +46,7 @@ class _AcceuilPageState extends State<AcceuilPage> {
       errorMessage = "";
     });
     try {
+      fetchUserData();
       final data = await transactionService.fetchTransactions();
       setState(() {
         transactions = data;

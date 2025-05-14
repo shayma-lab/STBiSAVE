@@ -13,8 +13,6 @@ class CachedImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = dotenv.env['API_URL'];
-    print("$url/${image.replaceAll('\'', '/')}");
-
     return CachedNetworkImage(
         imageUrl: "$url/${image.replaceAll('\'', '/')}",
         height: height,

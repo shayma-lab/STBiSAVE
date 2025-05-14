@@ -42,9 +42,11 @@ class _TransactionTileState extends State<TransactionTile> {
     } catch (e) {
       print('Erreur: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

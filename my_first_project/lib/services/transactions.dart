@@ -54,9 +54,9 @@ class TransactionService {
   }
 
   Future<List<TransactionByCategory>> getTransactionsByCategoryAdmin() async {
-    return await handleErrors(() async {
+    try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token')!;
+      final token = prefs.getString('token') ?? '';
 
       final response = await http.get(
         Uri.parse("$url/transaction/by-category-admin"),
@@ -65,15 +65,32 @@ class TransactionService {
           'Content-Type': 'application/json',
         },
       );
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data
-            .map((json) => TransactionByCategory.fromJson(json))
-            .toList();
+        final responseBody = response.body;
+        print('Raw response: $responseBody');
+
+        final List<dynamic> data =
+            json.decode(responseBody) as List<dynamic>? ?? [];
+
+        return data.map((item) {
+          try {
+            return TransactionByCategory.fromJson(
+                item as Map<String, dynamic>? ?? {});
+          } catch (e) {
+            print('Error parsing item: $e');
+            print('Problematic item: $item');
+            throw CustomHttpException("Failed to parse transaction data");
+          }
+        }).toList();
       } else {
-        throw CustomHttpException("Impossible de récupérer les transactions");
+        throw CustomHttpException(
+            "Failed to fetch transactions: ${response.statusCode}");
       }
-    });
+    } catch (e) {
+      print('Error in getTransactionsByCategoryAdmin: $e');
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> getMonthlyTransactions() async {
