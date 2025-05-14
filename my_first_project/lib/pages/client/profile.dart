@@ -7,6 +7,7 @@ import 'package:my_first_project/services/auth.dart';
 import 'package:my_first_project/widgets/appbar_widget.dart';
 import 'package:my_first_project/widgets/cachedImageWidget.dart';
 import 'package:my_first_project/widgets/yes_or_no_popup.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   static const routeName = "/ProfilePage";
@@ -33,11 +34,19 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       user = userData;
     });
+    final prefs = await SharedPreferences.getInstance();
+    final darkMode = prefs.getBool("darkMode") ?? false;
+    setState(() {
+      isDarkMode = darkMode;
+    });
   }
 
   void toggleDarkMode(bool value) {
     setState(() {
       isDarkMode = value;
+    });
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool("darkMode", value);
     });
   }
 

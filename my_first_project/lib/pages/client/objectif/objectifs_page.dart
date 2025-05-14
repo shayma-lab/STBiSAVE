@@ -29,7 +29,7 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
     fetchData();
   }
 
-  fetchData() async {
+  Future<void> fetchData() async {
     setState(() {
       isLoading = true;
     });
@@ -57,34 +57,39 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
                 ? ErrorMessageWidget(errorMessage)
                 : objectifs.isEmpty
                     ? InfoMessageWidget("Aucun objectif trouvé !")
-                    : SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ListView.builder(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              itemCount: objectifs.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) => ObjectifWidget(
-                                objectifs[index],
-                                index.toDouble(),
-                                onDelete: () =>
-                                    deleteObjectif(objectifs[index].id),
-                                onEdit: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          UpdateObjectifPage(objectifs[index]),
-                                    ),
-                                  ).then((value) {
-                                    fetchData();
-                                  });
-                                },
+                    : RefreshIndicator(
+                        onRefresh: fetchData,
+                        child: SingleChildScrollView(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              ListView.builder(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                itemCount: objectifs.length,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) => ObjectifWidget(
+                                  objectifs[index],
+                                  index.toDouble(),
+                                  onDelete: () =>
+                                      deleteObjectif(objectifs[index].id),
+                                  onEdit: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            UpdateObjectifPage(
+                                                objectifs[index]),
+                                      ),
+                                    ).then((value) {
+                                      fetchData();
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
       ),

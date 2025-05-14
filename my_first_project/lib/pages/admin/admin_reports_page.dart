@@ -57,50 +57,54 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
             ? ErrorMessageWidget(errorMessage)
             : transactions.isEmpty
                 ? InfoMessageWidget("Aucun transactions trouvé !")
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Dépenses des 5 premières catégories',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 20),
-                        BarchartWidget(limitedTransactions),
-                        const SizedBox(height: 30),
-                        const Text(
-                          'Résumé des dépenses',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 15),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: transactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = transactions[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                leading: Icon(
-                                  transaction.category.icon,
-                                  color: transaction.category.color,
+                : RefreshIndicator(
+                    onRefresh: fetchData,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Dépenses des 5 premières catégories',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+                          BarchartWidget(limitedTransactions),
+                          const SizedBox(height: 30),
+                          const Text(
+                            'Résumé des dépenses',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 15),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = transactions[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListTile(
+                                  leading: Icon(
+                                    transaction.category.icon,
+                                    color: transaction.category.color,
+                                  ),
+                                  title: Text(transaction.category.title),
+                                  subtitle: Text(
+                                    "${transaction.count} transactions",
+                                  ),
+                                  trailing:
+                                      Text(transaction.totalAmount.toString()),
+                                  onTap: () => showTransactions(
+                                      transaction.transactions),
                                 ),
-                                title: Text(transaction.category.title),
-                                subtitle: Text(
-                                  "${transaction.count} transactions",
-                                ),
-                                trailing:
-                                    Text(transaction.totalAmount.toString()),
-                                onTap: () =>
-                                    showTransactions(transaction.transactions),
-                              ),
-                            );
-                          },
-                        )
-                      ],
+                              );
+                            },
+                          )
+                        ],
+                      ),
                     ),
                   );
   }

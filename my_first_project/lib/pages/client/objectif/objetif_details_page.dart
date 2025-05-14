@@ -220,6 +220,9 @@ class _ObjetifDetailsPageState extends State<ObjetifDetailsPage> {
     try {
       await objectifService.updateObjectifProgress(
           widget.objectifId, num.parse(amountController.text));
+      setState(() {
+        amountController.clear();
+      });
       fetchData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -257,15 +260,13 @@ class _ObjetifDetailsPageState extends State<ObjetifDetailsPage> {
   Widget buildProgressBar(double value) {
     return Stack(
       children: [
-        // Background: gray or white
         Container(
           height: 25,
           decoration: BoxDecoration(
-            color: Colors.grey[300], // background remains light
+            color: Colors.grey[300],
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        // Progress: gradient-filled portion
         LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth * value;

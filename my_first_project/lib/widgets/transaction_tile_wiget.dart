@@ -94,15 +94,17 @@ class _TransactionTileState extends State<TransactionTile> {
                                     categories[index].id,
                                   );
                                   widget.onCategoryChanged();
+                                  Navigator.of(context).pop();
                                 } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("Erreur: $e"),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                  if(mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Erreur: $e"),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
-                                Navigator.of(context).pop();
                               },
                             );
                           },

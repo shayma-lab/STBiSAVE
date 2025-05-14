@@ -65,66 +65,71 @@ class _RapportsPageState extends State<RapportsPage> {
                 ? ErrorMessageWidget(errorMessage)
                 : transactions.isEmpty
                     ? InfoMessageWidget("Aucun transactions trouvé !")
-                    : SingleChildScrollView(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Résumé des dépenses mensuelles',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Card(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              child: ListTile(
-                                title: Text(
-                                  'Total des dépenses : ${monthlySummary['totalAmount'].toStringAsFixed(2)} DT',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                    : RefreshIndicator(
+                        onRefresh: fetchData,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Résumé des dépenses mensuelles',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              Card(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                child: ListTile(
+                                  title: Text(
+                                    'Total des dépenses : ${monthlySummary['totalAmount'].toStringAsFixed(2)} DT',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                subtitle: Text(
-                                  'Nombre de transactions : ${monthlySummary['count']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                  subtitle: Text(
+                                    'Nombre de transactions : ${monthlySummary['count']}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const Text(
-                              'Dépenses des 5 premières catégories',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 20),
-                            BarchartWidget(limitedTransactions),
-                            const SizedBox(height: 30),
-                            const Text(
-                              'Résumé des dépenses',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 15),
-                            ...transactions.map((cat) {
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                child: ListTile(
-                                  leading: Icon(cat.category.icon,
-                                      color: cat.category.color),
-                                  title: Text(cat.category.title),
-                                  trailing: Text(
-                                    '-${cat.totalAmount.toStringAsFixed(2)} DT',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
+                              const Text(
+                                'Dépenses des 5 premières catégories',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 20),
+                              BarchartWidget(limitedTransactions),
+                              const SizedBox(height: 30),
+                              const Text(
+                                'Résumé des dépenses',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 15),
+                              ...transactions.map((cat) {
+                                return Card(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6),
+                                  child: ListTile(
+                                    leading: Icon(cat.category.icon,
+                                        color: cat.category.color),
+                                    title: Text(cat.category.title),
+                                    trailing: Text(
+                                      '-${cat.totalAmount.toStringAsFixed(2)} DT',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.redAccent,
+                                      ),
                                     ),
+                                    onTap: () =>
+                                        showTransactions(cat.transactions),
                                   ),
-                                  onTap: () =>
-                                      showTransactions(cat.transactions),
-                                ),
-                              );
-                            }),
-                          ],
+                                );
+                              }),
+                            ],
+                          ),
                         ),
                       ),
       ),
