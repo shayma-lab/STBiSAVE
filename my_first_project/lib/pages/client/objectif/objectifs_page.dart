@@ -94,9 +94,12 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
                       ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddObjectifPage()));
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddObjectifPage()),
+          );
+          fetchData();
         },
         shape: const CircleBorder(),
         backgroundColor: Colors.blue,
@@ -104,8 +107,6 @@ class _ObjectifsPageState extends State<ObjectifsPage> {
       ),
     );
   }
-
-  editObjectif() {}
 
   deleteObjectif(String id) async {
     setState(() {
