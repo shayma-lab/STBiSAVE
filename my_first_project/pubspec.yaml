@@ -28,7 +28,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.3.2
+  # flutter_native_splash: ^2.3.2
 
 
 flutter:
@@ -38,12 +38,12 @@ flutter:
   uses-material-design: true
   
 
-flutter_native_splash:
-  color: "#FFFFFF"  # Fond blanc
-  image: assets/images/stb_bank.png  # Logo de l'application
-  android_12:
-    image: assets/images/carte.png
-    icon_background_color: "#FFFFFF"
+# flutter_native_splash:
+#   color: "#FFFFFF"  # Fond blanc
+#   image: assets/images/stb_bank.png  # Logo de l'application
+#   android_12:
+#     image: assets/images/carte.png
+#     icon_background_color: "#FFFFFF"
 fonts:
   - family: Poppins
     fonts:
