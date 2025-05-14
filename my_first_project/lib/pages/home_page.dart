@@ -3,6 +3,7 @@ import 'package:my_first_project/pages/auth/connexion.dart';
 import 'package:my_first_project/pages/auth/inscription.dart';
 
 class HomePage extends StatefulWidget {
+  static const routeName = "/HomePage";
   const HomePage({super.key});
 
   @override

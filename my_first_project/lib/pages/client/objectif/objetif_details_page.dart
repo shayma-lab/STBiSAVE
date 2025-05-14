@@ -99,8 +99,12 @@ class _ObjetifDetailsPageState extends State<ObjetifDetailsPage> {
                                     "${objectif.objectif.progression} DT"),
                                 buildDetailTile("Jours restants",
                                     objectif.remainingDays.toString()),
-                                buildDetailTile("Progression",
-                                    "${((objectif.objectif.progression / objectif.objectif.amount) * 100).toStringAsFixed(1)}%"),
+                                buildDetailTile("Montant par jour",
+                                    "${objectif.dailyAmount} DT"),
+                                buildProgressBar(
+                                  objectif.objectif.progression /
+                                      objectif.objectif.amount,
+                                ),
                               ],
                             ),
                           ),
@@ -114,67 +118,79 @@ class _ObjetifDetailsPageState extends State<ObjetifDetailsPage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Form(
-                              key: formKey,
-                              child: Expanded(
-                                flex: 2,
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                  controller: amountController,
-                                  decoration: inputDecoration(
-                                    "Montant",
-                                    FontAwesomeIcons.moneyBill1Wave,
-                                  ),
-                                  validator: (val) {
-                                    if (val == null || val.isEmpty) {
-                                      return "Champ requis";
-                                    }
-                                    final enteredAmount =
-                                        int.tryParse(val) ?? 0;
-                                    if (enteredAmount >
-                                        objectif.remainingAmount) {
-                                      return "Montant supérieur au montant restant";
-                                    }
-                                    return null;
-                                  },
+                        objectif.remainingAmount == 0
+                            ? const Text(
+                                "Objectif atteint",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green,
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: SizedBox(
-                                height: 50,
-                                child: ElevatedButton(
-                                  onPressed: isLoading
-                                      ? null
-                                      : () => objectifProgress(),
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    backgroundColor: const Color(0xFF0D47A1),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: isLoading
-                                      ? const CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : const Text(
-                                          "Ajouter",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                              )
+                            : Row(
+                                children: [
+                                  Form(
+                                    key: formKey,
+                                    child: Expanded(
+                                      flex: 2,
+                                      child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                        ],
+                                        controller: amountController,
+                                        decoration: inputDecoration(
+                                          "Montant",
+                                          FontAwesomeIcons.moneyBill1Wave,
                                         ),
-                                ),
+                                        validator: (val) {
+                                          if (val == null || val.isEmpty) {
+                                            return "Champ requis";
+                                          }
+                                          final enteredAmount =
+                                              int.tryParse(val) ?? 0;
+                                          if (enteredAmount >
+                                              objectif.remainingAmount) {
+                                            return "Montant supérieur au montant restant";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50,
+                                      child: ElevatedButton(
+                                        onPressed: isLoading
+                                            ? null
+                                            : () => objectifProgress(),
+                                        style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          backgroundColor:
+                                              const Color(0xFF0D47A1),
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        child: isLoading
+                                            ? const CircularProgressIndicator(
+                                                color: Colors.white)
+                                            : const Text(
+                                                "Ajouter",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -235,6 +251,54 @@ class _ObjetifDetailsPageState extends State<ObjetifDetailsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildProgressBar(double value) {
+    return Stack(
+      children: [
+        // Background: gray or white
+        Container(
+          height: 25,
+          decoration: BoxDecoration(
+            color: Colors.grey[300], // background remains light
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        // Progress: gradient-filled portion
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth * value;
+            return Stack(
+              children: [
+                Container(
+                  width: width,
+                  height: 25,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: const LinearGradient(
+                      colors: [Colors.red, Colors.orange, Colors.green],
+                      stops: [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: constraints.maxWidth,
+                  height: 25,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "${(value * 100).toStringAsFixed(1)}%",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }

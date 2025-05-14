@@ -21,6 +21,7 @@ Future<T> handleErrors<T>(Future<T> Function() operation) async {
   } on StateError {
     throw CustomHttpException("Une erreur est survenue");
   } catch (exception) {
+    print(exception);
     throw CustomHttpException(exception.toString());
   }
 }

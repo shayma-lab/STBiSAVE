@@ -251,7 +251,6 @@ class _InscriptionPageState extends State<InscriptionPage> {
         );
         Navigator.pop(context);
       } catch (e) {
-        print(e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur de connexion : $e")),
         );

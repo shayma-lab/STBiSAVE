@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_first_project/pages/auth/inscription.dart';
 import 'package:my_first_project/services/auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/register");
+                  Navigator.pushNamed(context, InscriptionPage.routeName);
                 },
                 child: Text(
                   "Pas encore inscrit ? Créez un compte",

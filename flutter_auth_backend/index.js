@@ -43,6 +43,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/transaction", transactionRoutes);
 app.use("/api/objectif", objectifRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/uploads", express.static("uploads"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () =>

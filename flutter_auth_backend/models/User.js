@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
     dateNaissance: { type: Date, required: true },
     soldeBancaire: { type: Number, default: 0 },
     role: { type: String, enum: ["admin", "user"], default: "user" },
+    image: {
+      type: String,
+      default: "uploads\\user.png",
+    },
   },
   { timestamps: true }
 );

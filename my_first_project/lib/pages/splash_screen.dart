@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_first_project/models/user.dart';
 import 'package:my_first_project/pages/admin/admin.dart';
-import 'package:my_first_project/pages/auth/connexion.dart';
 import 'package:my_first_project/pages/client/tab_screen.dart';
+import 'package:my_first_project/pages/home_page.dart';
 import 'package:my_first_project/services/auth.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,7 +23,8 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn);
 
   Auth auth = Auth();
-  UserData user = UserData("", "", "", "", "", "", DateTime.now(), 0, []);
+  UserData user =
+      UserData("", "", "", "", "", "", "", DateTime.now(), 0, UserRole.user, "");
 
   @override
   void dispose() {
@@ -48,13 +49,13 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
       if (isLoggedIn) {
         await fetchData();
-        if (user.email == 'shayma@gmail.com') {
+        if (user.role == UserRole.admin) {
           Navigator.pushReplacementNamed(context, AdminPage.routeName);
         } else {
           Navigator.pushReplacementNamed(context, TabScreen.routeName);
         }
       } else {
-        Navigator.pushReplacementNamed(context, LoginPage.routeName);
+        Navigator.pushReplacementNamed(context, HomePage.routeName);
       }
     } catch (error) {
       if (!mounted) return;
@@ -80,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: Center(
           child: Padding(
             padding: EdgeInsets.all(30),
-            child: Image.asset('assets/images/logo.png'),
+            child: Image.asset('assets/images/stb_bank.png'),
           ),
         ),
       ),

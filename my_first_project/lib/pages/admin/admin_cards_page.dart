@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:my_first_project/models/category.dart';
+import 'package:my_first_project/services/category.dart';
 
 class AdminCardsPage extends StatefulWidget {
   const AdminCardsPage({super.key});
@@ -11,6 +13,9 @@ class AdminCardsPage extends StatefulWidget {
 }
 
 class _AdminCardsPageState extends State<AdminCardsPage> {
+  List<Category> categories = [];
+  Category? selectedCategory;
+  bool isLoading = false;
   List<Map<String, dynamic>> users = [];
   Map<String, dynamic>? selectedUser;
   Map<String, dynamic>? userCard;
@@ -27,6 +32,7 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
   void initState() {
     super.initState();
     fetchUsers();
+    fetchCategories();
   }
 
   Future<void> fetchUsers() async {
@@ -43,6 +49,22 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
       }
     } catch (e) {
       print('Erreur: $e');
+    }
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      CategoryService categoryService = CategoryService();
+      categories = await categoryService.getAllCategoriesByUser();
+    } catch (e) {
+      print('Erreur: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -77,7 +99,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
 
   Future<void> fetchTransactions(String cardId) async {
     try {
-      final response = await http.get(Uri.parse('$apiUrl/admin/transactions/$cardId'));
+      final response =
+          await http.get(Uri.parse('$apiUrl/admin/transactions/$cardId'));
 
       if (response.statusCode == 200) {
         final List<dynamic> transactionList = json.decode(response.body);
@@ -94,7 +117,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
 
   Future<void> deleteTransaction(String transactionId) async {
     try {
-      final response = await http.delete(Uri.parse('$apiUrl/admin/delete-transaction/$transactionId'));
+      final response = await http
+          .delete(Uri.parse('$apiUrl/admin/delete-transaction/$transactionId'));
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Transaction supprimée ✅")),
@@ -132,9 +156,7 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     };
 
     final isUpdate = userCard != null;
-    final url = isUpdate
-        ? '$apiUrl/admin/add-card'
-        : '$apiUrl/admin/add-card';
+    final url = isUpdate ? '$apiUrl/admin/add-card' : '$apiUrl/admin/add-card';
 
     final response = await http.post(
       Uri.parse(url),
@@ -144,7 +166,9 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Carte ${isUpdate ? 'mise à jour' : 'ajoutée'} pour ${selectedUser!['name']} ✅")),
+        SnackBar(
+            content: Text(
+                "Carte ${isUpdate ? 'mise à jour' : 'ajoutée'} pour ${selectedUser!['name']} ✅")),
       );
       setState(() {
         selectedUser = null;
@@ -162,29 +186,38 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     }
   }
 
-  Future<void> addTransaction(String number, String amount, String beneficiary) async {
+  Future<void> addTransaction(String number, String amount, String beneficiary,
+      String categoryId) async {
     final body = {
       "userId": selectedUser!['_id'],
       "cardId": userCard!['_id'],
       "transactionNumber": number,
       "amount": amount,
       "beneficiaryAccount": beneficiary,
+      "category": categoryId,
     };
 
-    final response = await http.post(
-      Uri.parse('$apiUrl/admin/add-transaction'),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode(body),
-    );
-
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Transaction ajoutée ✅")),
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/admin/add-transaction'),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(body),
       );
-      await fetchTransactions(userCard!['_id']);
-    } else {
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Transaction ajoutée ✅")),
+        );
+        await fetchTransactions(userCard!['_id']);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Erreur lors de l'ajout de la transaction.")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Erreur lors de l'ajout de la transaction.")),
+        const SnackBar(content: Text("Erreur lors de l'ajout.")),
       );
     }
   }
@@ -216,7 +249,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Sélectionnez un utilisateur :", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("Sélectionnez un utilisateur :",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Expanded(
           child: users.isEmpty
@@ -247,27 +281,35 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Utilisateur sélectionné : ${selectedUser!['name']} ${selectedUser!['prenom']}", style: const TextStyle(fontSize: 16)),
+          Text(
+              "Utilisateur sélectionné : ${selectedUser!['name']} ${selectedUser!['prenom']}",
+              style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 20),
           TextField(
             controller: soldeController,
-            decoration: const InputDecoration(labelText: "Solde bancaire (DT)", border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: "Solde bancaire (DT)", border: OutlineInputBorder()),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: numeroCarteController,
-            decoration: const InputDecoration(labelText: "Numéro de carte", border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: "Numéro de carte", border: OutlineInputBorder()),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: typeCarteController,
-            decoration: const InputDecoration(labelText: "Type de carte (ex: Visa, MasterCard)", border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: "Type de carte (ex: Visa, MasterCard)",
+                border: OutlineInputBorder()),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: expirationController,
-            decoration: const InputDecoration(labelText: "Date d'expiration (MM/AA)", border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: "Date d'expiration (MM/AA)",
+                border: OutlineInputBorder()),
           ),
           const SizedBox(height: 20),
           Row(
@@ -287,8 +329,10 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: submitCard,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: Text(userCard == null ? "✅ Ajouter" : "♻️ Mettre à jour"),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child:
+                      Text(userCard == null ? "✅ Ajouter" : "♻️ Mettre à jour"),
                 ),
               ),
             ],
@@ -300,13 +344,15 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
             child: const Text("➕ Ajouter une transaction"),
           ),
           const SizedBox(height: 20),
-          const Text("📜 Liste des transactions :", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text("📜 Liste des transactions :",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           ...transactions.map((t) => Card(
                 child: ListTile(
                   leading: const Icon(Icons.payment),
                   title: Text("Transaction #${t['transactionNumber']}"),
-                  subtitle: Text("Montant: ${t['amount']} DT\nBénéficiaire: ${t['beneficiaryAccount']}"),
+                  subtitle: Text(
+                      "Montant: ${t['amount']} DT\nBénéficiaire: ${t['beneficiaryAccount']}"),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -319,7 +365,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text("Confirmer la suppression"),
-                              content: const Text("Voulez-vous vraiment supprimer cette transaction ?"),
+                              content: const Text(
+                                  "Voulez-vous vraiment supprimer cette transaction ?"),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
@@ -330,7 +377,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
                                     Navigator.pop(context);
                                     deleteTransaction(t['_id']);
                                   },
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red),
                                   child: const Text("Supprimer"),
                                 ),
                               ],
@@ -343,7 +391,8 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
                 ),
               )),
           if (transactions.isEmpty)
-            const Text("Aucune transaction trouvée.", style: TextStyle(color: Colors.grey)),
+            const Text("Aucune transaction trouvée.",
+                style: TextStyle(color: Colors.grey)),
         ],
       ),
     );
@@ -353,47 +402,80 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     final transactionNumberController = TextEditingController();
     final amountController = TextEditingController();
     final beneficiaryController = TextEditingController();
+    Category? dialogSelectedCategory = selectedCategory;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Ajouter une transaction"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: transactionNumberController,
-                decoration: const InputDecoration(labelText: "Numéro de transaction"),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Ajouter une transaction"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: transactionNumberController,
+                    decoration: const InputDecoration(
+                        labelText: "Numéro de transaction"),
+                  ),
+                  TextField(
+                    controller: amountController,
+                    decoration:
+                        const InputDecoration(labelText: "Montant (DT)"),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: beneficiaryController,
+                    decoration:
+                        const InputDecoration(labelText: "Compte bénéficiaire"),
+                  ),
+                  DropdownButton<Category>(
+                    value: dialogSelectedCategory,
+                    hint: const Text("Sélectionnez une catégorie"),
+                    items: categories.map((category) {
+                      return DropdownMenuItem<Category>(
+                        value: category,
+                        child: Text(category.title),
+                      );
+                    }).toList(),
+                    onChanged: (Category? value) {
+                      setState(() {
+                        dialogSelectedCategory = value;
+                      });
+                    },
+                  )
+                ],
               ),
-              TextField(
-                controller: amountController,
-                decoration: const InputDecoration(labelText: "Montant (DT)"),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: beneficiaryController,
-                decoration: const InputDecoration(labelText: "Compte bénéficiaire"),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Annuler"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await addTransaction(
-                  transactionNumberController.text,
-                  amountController.text,
-                  beneficiaryController.text,
-                );
-                Navigator.pop(context);
-              },
-              child: const Text("Ajouter"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Annuler"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (dialogSelectedCategory == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text("Veuillez sélectionner une catégorie")),
+                      );
+                      return;
+                    }
+
+                    await addTransaction(
+                      transactionNumberController.text,
+                      amountController.text,
+                      beneficiaryController.text,
+                      dialogSelectedCategory!.id,
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Ajouter"),
+                ),
+              ],
+            );
+          },
         );
       },
     );

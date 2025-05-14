@@ -114,9 +114,6 @@ class ObjectifService {
         }),
       );
 
-      print(response.body);
-      print(response.statusCode);
-
       if (response.statusCode != 200) {
         throw CustomHttpException(
             "Erreur lors de la récupération de la progression de l'objectif");

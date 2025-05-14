@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_first_project/models/user.dart';
 import 'package:my_first_project/pages/client/profile.dart';
 import 'package:my_first_project/services/auth.dart';
 import 'package:my_first_project/widgets/back_appbar_widget.dart';
+import 'package:my_first_project/widgets/cachedImageWidget.dart';
+import 'package:my_first_project/widgets/choosePictureType.dart';
 
 class ModifyProfilePage extends StatefulWidget {
   final UserData user;
@@ -14,7 +20,8 @@ class ModifyProfilePage extends StatefulWidget {
 
 class _ModifyProfilePageState extends State<ModifyProfilePage> {
   final _formKey = GlobalKey<FormState>();
-
+  File? photo;
+  ImagePicker imagePicker = ImagePicker();
   final nameController = TextEditingController();
   final prenomController = TextEditingController();
   final phoneController = TextEditingController();
@@ -107,6 +114,57 @@ class _ModifyProfilePageState extends State<ModifyProfilePage> {
             key: _formKey,
             child: Column(
               children: [
+                Stack(
+                  children: [
+                    photo == null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(150),
+                            child: CachedImageWidget(
+                                widget.user.image, 150, 150, BoxFit.cover))
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(150),
+                            child: Image.file(
+                              photo!,
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.cover,
+                            )),
+                    Positioned(
+                        bottom: 5,
+                        right: 5,
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              color: Color(0xFF3C8CE7),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: IconButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(16),
+                                      topLeft: Radius.circular(16),
+                                    ),
+                                  ),
+                                  backgroundColor: Color(0xFF3C8CE7),
+                                  context: context,
+                                  builder: ((builder) => BottomSheetCamera(
+                                        () {
+                                          takephoto(ImageSource.camera);
+                                        },
+                                        () {
+                                          takephoto(ImageSource.gallery);
+                                        },
+                                      )),
+                                );
+                              },
+                              icon: Icon(FontAwesomeIcons.pen,
+                                  size: 14, color: Colors.white)),
+                        ))
+                  ],
+                ),
+                SizedBox(height: 20),
                 DropdownButtonFormField<String>(
                   decoration:
                       _inputDecoration("Civilité", Icons.person_outline),
@@ -202,6 +260,17 @@ class _ModifyProfilePageState extends State<ModifyProfilePage> {
     );
   }
 
+  takephoto(ImageSource source) async {
+    final pick = await imagePicker.pickImage(source: source);
+    setState(() {
+      if (pick != null) {
+        setState(() {
+          photo = File(pick.path);
+        });
+      }
+    });
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -210,13 +279,13 @@ class _ModifyProfilePageState extends State<ModifyProfilePage> {
       try {
         Auth auth = Auth();
         await auth.updateUser(
-          nameController.text,
-          prenomController.text,
-          phoneController.text,
-          selectedCivilite ?? "M.",
-          selectedGouvernorat ?? "Tunis",
-          DateTime.parse(dateController.text),
-        );
+            nameController.text,
+            prenomController.text,
+            phoneController.text,
+            selectedCivilite ?? "M.",
+            selectedGouvernorat ?? "Tunis",
+            DateTime.parse(dateController.text),
+            photo);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profil modifié avec succès")),

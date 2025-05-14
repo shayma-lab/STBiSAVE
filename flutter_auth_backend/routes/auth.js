@@ -3,6 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Card = require("../models/card");
 const User = require("../models/user");
+const multer = require("multer");
+const multerStorage = require("../middleware/multerStorage");
+const upload = multer({ storage: multerStorage });
+const fs = require("fs");
 
 const authMiddleware = require("../middleware/auth");
 
@@ -102,41 +106,50 @@ router.post("/login", async (req, res) => {
 });
 
 router.put("/update", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.user._id;
+  upload.single("image")(req, res, async (err) => {
+    try {
+      const userId = req.user.user._id;
 
-    const { name, prenom, phone, civilite, gouvernorat, dateNaissance } =
-      req.body;
+      const { name, prenom, phone, civilite, gouvernorat, dateNaissance } =
+        req.body;
 
-    if (
-      !userId ||
-      !name ||
-      !prenom ||
-      !phone ||
-      !civilite ||
-      !gouvernorat ||
-      !dateNaissance
-    ) {
-      return res.status(400).json({ msg: "Tous les champs sont requis." });
+      if (
+        !userId ||
+        !name ||
+        !prenom ||
+        !phone ||
+        !civilite ||
+        !gouvernorat ||
+        !dateNaissance
+      ) {
+        return res.status(400).json({ msg: "Tous les champs sont requis." });
+      }
+
+      let user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ msg: "Utilisateur non trouvé." });
+      }
+
+      if (req.file) {
+        if (user.image !== "uploads\\user.png") {
+          fs.unlinkSync(user.image);
+        }
+        user.image = req.file.path;
+      }
+      
+      user.name = name;
+      user.prenom = prenom;
+      user.phone = phone;
+      user.civilite = civilite;
+      user.gouvernorat = gouvernorat;
+      user.dateNaissance = dateNaissance;
+      await user.save();
+      res.status(200).json(user);
+    } catch (err) {
+      console.error("Erreur serveur : ", err);
+      res.status(500).json({ error: "Erreur serveur interne." });
     }
-
-    let user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ msg: "Utilisateur non trouvé." });
-    }
-
-    user.name = name;
-    user.prenom = prenom;
-    user.phone = phone;
-    user.civilite = civilite;
-    user.gouvernorat = gouvernorat;
-    user.dateNaissance = dateNaissance;
-    await user.save();
-    res.status(200).json(user);
-  } catch (err) {
-    console.error("Erreur serveur : ", err);
-    res.status(500).json({ error: "Erreur serveur interne." });
-  }
+  });
 });
 
 module.exports = router;

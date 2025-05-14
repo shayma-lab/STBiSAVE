@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:my_first_project/models/http_exceptions.dart';
-import 'package:my_first_project/models/transactionWithUser.dart';
 import 'package:my_first_project/models/user.dart';
 import 'package:my_first_project/pages/admin/admin.dart';
 import 'package:my_first_project/pages/auth/connexion.dart';
@@ -65,10 +65,12 @@ class Auth {
         await prefs.setString("token", responseData['token']);
         Map<String, dynamic> decodedToken =
             JwtDecoder.decode(responseData['token']);
+        print(decodedToken);
+
         final userData = UserData.fromJson(decodedToken['user']);
         final jsonString = jsonEncode(userData.toJson());
         await prefs.setString('user', jsonString);
-        if (email == 'shayma@gmail.com') {
+        if (userData.role == UserRole.admin) {
           Navigator.pushReplacementNamed(context, AdminPage.routeName);
         } else {
           Navigator.pushReplacementNamed(context, TabScreen.routeName);
@@ -115,48 +117,26 @@ class Auth {
     return UserData.fromJson(decodedUser);
   }
 
-  Future<TransactionWithUser> fetchTransactions() async {
-    return await handleErrors(() async {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token')!;
-      final response = await http.get(
-        Uri.parse('$url/accueil/me'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonData = json.decode(response.body);
-        return TransactionWithUser.fromJson(jsonData);
-      } else {
-        throw Exception(
-            'Une erreur est survenue lors de la récupération des données.');
-      }
-    });
-  }
-
   Future<void> updateUser(String name, String prenom, String phone,
-      String civilite, String gouvernorat, DateTime date) async {
+      String civilite, String gouvernorat, DateTime date, File? photo) async {
     return await handleErrors(() async {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token')!;
-      final response = await http.put(
-        Uri.parse('$url/auth/update'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "name": name,
-          "prenom": prenom,
-          "phone": phone,
-          "civilite": civilite,
-          "gouvernorat": gouvernorat,
-          "dateNaissance": date.toIso8601String().split('T')[0],
-        }),
-      );
-      final responseData = json.decode(response.body);
+      final request = http.MultipartRequest('PUT', Uri.parse('$url/auth/update'));
+      request.headers['Authorization'] = 'Bearer $token';
+      request.fields['name'] = name;
+      request.fields['prenom'] = prenom;
+      request.fields['phone'] = phone;
+      request.fields['civilite'] = civilite;
+      request.fields['gouvernorat'] = gouvernorat;
+      request.fields['dateNaissance'] = date.toIso8601String().split('T')[0];
+      if (photo != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', photo.path));
+      }
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
+      final responseData = json.decode(body);
       if (response.statusCode == 200) {
         final userData = UserData.fromJson(responseData);
         final jsonString = jsonEncode(userData.toJson());

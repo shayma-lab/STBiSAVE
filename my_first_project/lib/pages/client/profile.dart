@@ -5,6 +5,7 @@ import 'package:my_first_project/pages/client/modify_profile_page.dart';
 import 'package:my_first_project/pages/client/rapport.dart';
 import 'package:my_first_project/services/auth.dart';
 import 'package:my_first_project/widgets/appbar_widget.dart';
+import 'package:my_first_project/widgets/cachedImageWidget.dart';
 import 'package:my_first_project/widgets/yes_or_no_popup.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,7 +18,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool isDarkMode = false;
-  UserData user = UserData("", "", "", "", "", "", DateTime.now(), 0, []);
+  UserData user = UserData(
+      "", "", "", "", "", "", "", DateTime.now(), 0, UserRole.user, "");
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void navigateTo(int index) {
-    if (index == 3) return; // Déjà sur la page profil
+    if (index == 3) return;
     switch (index) {
       case 0:
         Navigator.pushReplacementNamed(context, AcceuilPage.routeName);
@@ -59,7 +61,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF5F7FB);
     final cardColor = isDarkMode ? Colors.grey[900] : Colors.white;
     final textColor = isDarkMode ? Colors.white : Colors.black;
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: appBar(context, "Mon Profil"),
@@ -77,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   boxShadow: [
                     if (!isDarkMode)
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -86,10 +87,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/avatar.png'),
-                      radius: 50,
-                    ),
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(150),
+                        child: CachedImageWidget(
+                            user.image, 100, 100, BoxFit.cover)),
                     const SizedBox(height: 10),
                     Text(
                       "${user.civilite} ${user.name} ${user.prenom}",
