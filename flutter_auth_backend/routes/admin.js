@@ -107,7 +107,6 @@ router.post("/add-transaction", async (req, res) => {
       amount,
       beneficiaryAccount,
       date,
-      category,
     } = req.body;
 
     if (
@@ -115,8 +114,7 @@ router.post("/add-transaction", async (req, res) => {
       !cardId ||
       !transactionNumber ||
       !amount ||
-      !beneficiaryAccount ||
-      !category
+      !beneficiaryAccount
     ) {
       return res
         .status(400)
@@ -129,7 +127,6 @@ router.post("/add-transaction", async (req, res) => {
       transactionNumber,
       amount,
       beneficiaryAccount,
-      category,
       date: date || new Date(),
     });
 

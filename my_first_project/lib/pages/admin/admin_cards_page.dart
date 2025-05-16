@@ -32,7 +32,7 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
   void initState() {
     super.initState();
     fetchUsers();
-    fetchCategories();
+    // fetchCategories();
   }
 
   Future<void> fetchUsers() async {
@@ -52,21 +52,21 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     }
   }
 
-  Future<void> fetchCategories() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      CategoryService categoryService = CategoryService();
-      categories = await categoryService.getAllCategoriesByUser();
-    } catch (e) {
-      print('Erreur: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  // Future<void> fetchCategories() async {
+  //   try {
+  //     setState(() {
+  //       isLoading = true;
+  //     });
+  //     CategoryService categoryService = CategoryService();
+  //     categories = await categoryService.getAllCategoriesByUser();
+  //   } catch (e) {
+  //     print('Erreur: $e');
+  //   } finally {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   Future<void> fetchUserCard(String userId) async {
     try {
@@ -186,15 +186,15 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
     }
   }
 
-  Future<void> addTransaction(String number, String amount, String beneficiary,
-      String categoryId) async {
+  Future<void> addTransaction(
+      String number, String amount, String beneficiary) async {
     final body = {
       "userId": selectedUser!['_id'],
       "cardId": userCard!['_id'],
       "transactionNumber": number,
       "amount": amount,
       "beneficiaryAccount": beneficiary,
-      "category": categoryId,
+      // "category": categoryId,
     };
 
     try {
@@ -430,21 +430,21 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
                     decoration:
                         const InputDecoration(labelText: "Compte bénéficiaire"),
                   ),
-                  DropdownButton<Category>(
-                    value: dialogSelectedCategory,
-                    hint: const Text("Sélectionnez une catégorie"),
-                    items: categories.map((category) {
-                      return DropdownMenuItem<Category>(
-                        value: category,
-                        child: Text(category.title),
-                      );
-                    }).toList(),
-                    onChanged: (Category? value) {
-                      setState(() {
-                        dialogSelectedCategory = value;
-                      });
-                    },
-                  )
+                  // DropdownButton<Category>(
+                  //   value: dialogSelectedCategory,
+                  //   hint: const Text("Sélectionnez une catégorie"),
+                  //   items: categories.map((category) {
+                  //     return DropdownMenuItem<Category>(
+                  //       value: category,
+                  //       child: Text(category.title),
+                  //     );
+                  //   }).toList(),
+                  //   onChanged: (Category? value) {
+                  //     setState(() {
+                  //       dialogSelectedCategory = value;
+                  //     });
+                  //   },
+                  // )
                 ],
               ),
               actions: [
@@ -454,20 +454,20 @@ class _AdminCardsPageState extends State<AdminCardsPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    if (dialogSelectedCategory == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text("Veuillez sélectionner une catégorie")),
-                      );
-                      return;
-                    }
+                    // if (dialogSelectedCategory == null) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(
+                    //         content:
+                    //             Text("Veuillez sélectionner une catégorie")),
+                    //   );
+                    //   return;
+                    // }
 
                     await addTransaction(
                       transactionNumberController.text,
                       amountController.text,
                       beneficiaryController.text,
-                      dialogSelectedCategory!.id,
+                      // dialogSelectedCategory!.id,
                     );
                     Navigator.pop(context);
                   },
